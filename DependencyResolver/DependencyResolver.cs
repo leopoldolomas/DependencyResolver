@@ -63,7 +63,7 @@ namespace Leos.DependencyResolver
             Logger.log("===================================================");
             // get the class list from the specified namespace
             var fullClassList = AppDomain.CurrentDomain.GetAssemblies().SelectMany(
-                t => t.GetTypes()).Where(t => t.IsClass && t.Namespace == @_namespace).ToList();
+                t => t.GetTypes()).Where(t => (t.IsClass || t.IsInterface) && t.Namespace == @_namespace).ToList();
 
             // now we need to get all the interfaces that will need to be resolved
             interfacesToBeResolved = fullClassList.SelectMany(
