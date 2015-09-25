@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace DependencyResolverTests_Tutorial05
 {
-    // following is an example found in Ninject, here is how to implement it using DependencyResolver
     [TestClass]
     public class Tutorial05
     {
