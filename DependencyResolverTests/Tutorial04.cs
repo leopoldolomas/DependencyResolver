@@ -56,7 +56,7 @@ namespace DependencyResolverTests_Tutorial04
             }
         }
 
-        // ERROR! AnimalType.Cat is already in use by 'Cat' class
+        // Shall produce an error, AnimalType.Cat is already in use by 'Cat' class
         [ResolvesDependency(typeof(AnimalType), (int)AnimalType.Cat)]
         public class Duck : IAnimal
         {

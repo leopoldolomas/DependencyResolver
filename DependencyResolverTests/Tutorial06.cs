@@ -30,11 +30,13 @@ using Leos.DependencyResolver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace DependencyResolverTests_Tutorial05
+namespace DependencyResolverTests_Tutorial06
 {
     [TestClass]
-    public class Tutorial05
+    public class Tutorial06
     {
+        enum WeaponType { Sword = 0, Shuriken = 1 }
+
         interface IWeapon
         {
             int GetHitDamage();
@@ -42,12 +44,14 @@ namespace DependencyResolverTests_Tutorial05
 
         interface IPlayer
         {
+            WeaponType WeaponType { get; set; }
+
             IWeapon Weapon { get; set; }
 
             void HitEnemy();
         }
 
-        [ResolvesDependency]
+        [ResolvesDependency(typeof(WeaponType), (int)WeaponType.Sword)]
         class Sword : IWeapon
         {
             public int GetHitDamage()
@@ -56,9 +60,27 @@ namespace DependencyResolverTests_Tutorial05
             }
         }
 
+        [ResolvesDependency(typeof(WeaponType), (int)WeaponType.Shuriken)]
+        class Shuriken : IWeapon
+        {
+            public int GetHitDamage()
+            {
+                return 1;
+            }
+        }
+
         [ResolvesDependency]
         class Ninja : IPlayer
         {
+            /// <summary>
+            /// The config property that will be queried by Dependency Resolver
+            /// </summary>
+            [QueryableByDependencyResolver]
+            public WeaponType WeaponType { get; set; }
+
+            /// <summary>
+            /// Dependency to be autoresolved
+            /// </summary>
             [AutoResolved]
             public IWeapon Weapon { get; set; }
 
@@ -75,18 +97,22 @@ namespace DependencyResolverTests_Tutorial05
         }
 
         [TestMethod]
-        public void TestMethod5()
+        public void TestMethod6()
         {
-            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial05", new Logger());
+            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial06", new Logger());
+
             var game = new Game();
+            // game.Player.WeaponType = WeaponType.Shuriken; // will produce a NullReferenceException
+
+            // here it starts to get tricky. We can't specify the WeaponType since the "Player" dependency has not been resolved yet.
+            // There are several approaches to fix this, but I will need some time to think on one that makes the most sense.
+
             dependencyResolver.ResolveDependencies(game, recursive: true);
+            game.Player.HitEnemy();
 
-            Assert.IsTrue(game.Player is Ninja);
-            Assert.IsTrue(game.Player.Weapon is Sword);
-
+            game.Player.WeaponType = WeaponType.Shuriken;
+            dependencyResolver.ResolveDependencies(game.Player);
             game.Player.HitEnemy();
         }
     }
 }
-            
-

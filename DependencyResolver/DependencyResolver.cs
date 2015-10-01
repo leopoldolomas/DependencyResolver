@@ -130,8 +130,15 @@ namespace Leos.DependencyResolver
                 if (enumType != null)
                 {
                     // query the enum value
-                    var enumProperty = obj.GetType().GetProperties().First(
+                    var enumProperty = obj.GetType().GetProperties().FirstOrDefault(
                         p => p.IsDefined(typeof(QueryableByDependencyResolver)) && p.PropertyType == enumType);
+
+                    if (enumProperty == null)
+                    {
+                        throw new QueryablePropertyNotFoundException(
+                            $"Expected queryable property of type [{dependencyInfo.EnumType.Name}] in class [{obj.GetType().Name}]");
+                    }
+
                     enumValue = (int)enumProperty.GetValue(obj);
                 }
 
@@ -139,14 +146,23 @@ namespace Leos.DependencyResolver
                 var classType = dependencyInfoList.First(
                     d => d.InterfaceType == interfaceType && d.EnumType == enumType && d.EnumValue == enumValue).ClassType;
 
-                var dependency = Activator.CreateInstance(classType);
-                propertyInfo.SetValue(obj, dependency);
-
-                if (recursive)
+                // should inject the dependency only if the current property is null or has a different Type
+                if (propertyInfo.GetValue(obj) == null || propertyInfo.GetValue(obj).GetType() != classType)
                 {
-                    ResolveDependencies(dependency, recursive);
+                    var dependency = Activator.CreateInstance(classType);
+                    propertyInfo.SetValue(obj, dependency);
+
+                    if (recursive)
+                    {
+                        ResolveDependencies(dependency, recursive);
+                    }
                 }
             }
+        }
+
+        public void ResolveDependencies(object obj)
+        {
+            ResolveDependencies(obj, false);
         }
     }
 }

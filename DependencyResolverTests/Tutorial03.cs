@@ -81,12 +81,12 @@ namespace DependencyResolverTests_Tutorial03
             var animalCage = new AnimalCage();
 
             animalCage.AnimalType = AnimalType.Dog;
-            dependencyResolver.ResolveDependencies(animalCage, recursive: false);
+            dependencyResolver.ResolveDependencies(animalCage);
             Assert.IsTrue(animalCage.Animal is Dog);
             animalCage.GreetAnimal();
 
             animalCage.AnimalType = AnimalType.Cat;
-            dependencyResolver.ResolveDependencies(animalCage, recursive: false);
+            dependencyResolver.ResolveDependencies(animalCage);
             Assert.IsTrue(animalCage.Animal is Cat);
             animalCage.GreetAnimal();
         }

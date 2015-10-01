@@ -58,6 +58,7 @@
     <Compile Include="Tutorial03.cs" />
     <Compile Include="Tutorial04.cs" />
     <Compile Include="Tutorial05.cs" />
+    <Compile Include="Tutorial06.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DependencyResolver\DependencyResolver.csproj">

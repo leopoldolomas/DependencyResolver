@@ -1,4 +1,4 @@
-//--------------------------------------------------------------- @License begins
+﻿//--------------------------------------------------------------- @License begins
 // "DependencyResolver"
 // 2015 Leopoldo Lomas Flores. Torreon, Coahuila. MEXICO
 // leopoldolomas [at] gmail
@@ -25,51 +25,16 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //--------------------------------------------------------------- @License ends
 
-using DependencyResolverTests;
-using Leos.DependencyResolver;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-
-namespace DependencyResolverTests_Tutorial02
+namespace Leos.DependencyResolver
 {
-    [TestClass]
-    public class Tutorial02
+    public class QueryablePropertyNotFoundException : System.Exception
     {
-        [ResolvesDependency]
-        public class Dog : IAnimal
+        public QueryablePropertyNotFoundException()
         {
-            public void MakeSound()
-            {
-                Console.WriteLine("woof woof!");
-            }
         }
 
-        public class AnimalCage
+        public QueryablePropertyNotFoundException(string message) : base(message)
         {
-            public AnimalCage()
-            {
-                Animal = null;
-            }
-
-            [AutoResolved]
-            public IAnimal Animal { get; set; }
-
-            public void GreetAnimal()
-            {
-                Animal.MakeSound();
-            }
-        }
-
-        [TestMethod]
-        public void TestMethod2()
-        {
-            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial02", new Logger());
-            var animalCage = new AnimalCage();
-            dependencyResolver.ResolveDependencies(animalCage);
-
-            Assert.IsNotNull(animalCage.Animal, "Dependency could not be resolved");
-
-            animalCage.GreetAnimal();
         }
     }
 }

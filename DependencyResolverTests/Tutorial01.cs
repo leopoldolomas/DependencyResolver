@@ -53,7 +53,7 @@ namespace DependencyResolverTests_Tutorial01
 
             try
             {
-                dependencyResolver.ResolveDependencies(animalCage, recursive: false);
+                dependencyResolver.ResolveDependencies(animalCage);
                 Assert.Fail("An exception of 'ClassNotFoundException' type must be thrown");
             }
             catch(ClassNotFoundException)
