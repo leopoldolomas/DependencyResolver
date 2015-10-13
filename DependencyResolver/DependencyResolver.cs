@@ -38,16 +38,7 @@ namespace Leos.DependencyResolver
 
         private List<DependencyInfo> dependencyInfoList;
 
-        private List<System.Type> interfacesToBeResolved;
-        private List<System.Type> classesThatCanResolveDependencies;
-
-        public DependencyResolver(string _namespace)
-        {
-            Logger = new DummyLogger();
-            populateDependenciesMap(_namespace);
-        }
-
-        public DependencyResolver(string _namespace, ILogger logger)
+        public DependencyResolver(ILogger logger)
         {
             if (logger == null)
             {
@@ -55,73 +46,107 @@ namespace Leos.DependencyResolver
             }
 
             Logger = logger;
+
+            dependencyInfoList = new List<DependencyInfo>();
+        }
+
+        public DependencyResolver(string _namespace)
+        {
+            Logger = new DummyLogger();
             populateDependenciesMap(_namespace);
+        }
+
+        public DependencyResolver(string _namespace, ILogger logger) : this(logger)
+        {
+            populateDependenciesMap(_namespace);
+        }
+
+        public void Bind(Type interface_, Type class_)
+        {
+            Bind(interface_, class_, null, 0);
+        }
+
+        public Bind<T> Bind<T>()
+        {
+            dependencyInfoList.Add(new DependencyInfo());
+            var dependencyInfo = dependencyInfoList.Last();
+            var bind = new Bind<T>();
+            bind.DependencyInfo = dependencyInfo;
+
+            return bind;
+        }
+
+        public void Bind(Type dependencyType, Type serviceType, Type enumType, int value)
+        {
+            if (dependencyType == null)
+            {
+                throw new ArgumentNullException("dependencyType");
+            }
+
+            if (serviceType == null)
+            {
+                throw new ArgumentNullException("serviceType");
+            }
+
+            var dependencyInfo = new DependencyInfo(dependencyType, serviceType, enumType, value);
+
+            bool configInUse = dependencyInfoList.Where(
+                d => d.DependencyType == dependencyType && d.EnumType == enumType && d.EnumValue == value).Count() > 0;
+
+            if (configInUse)
+            {
+                throw new ConfigurationAlreadyInUseException(
+                    $"The following configuration tuple is already in use: {dependencyType.Name} - {enumType.Name} - {value}");
+            }
+
+            dependencyInfoList.Add(dependencyInfo);
         }
 
         private void populateDependenciesMap(string _namespace)
         {
             Logger.log("===================================================");
+
             // get the class list from the specified namespace
             var fullClassList = AppDomain.CurrentDomain.GetAssemblies().SelectMany(
                 t => t.GetTypes()).Where(t => (t.IsClass || t.IsInterface) && t.Namespace == @_namespace).ToList();
 
-            // now we need to get all the interfaces that will need to be resolved
-            interfacesToBeResolved = fullClassList.SelectMany(
-                c => c.GetProperties()).Where(
-                p => p.IsDefined(typeof(AutoResolvedAttribute), false) && p.PropertyType.IsInterface).Select(
-                p => p.PropertyType).ToList();
+            // if a class is intended to resolve a dependency, it should have been marked with the [ResolvesDependency] attribute
+            var availableServices = fullClassList.Where(c => c.IsDefined(typeof(ResolvesDependencyAttribute), false)).ToList();
 
-            // if a class is intended to resolve a dependency, it should be marked with the "ResolvesDependency" attribute
-            classesThatCanResolveDependencies = fullClassList.Where(c => c.IsDefined(typeof(ResolvesDependencyAttribute), false)).ToList();
-
-            // TODO explain why we select interface #0
-            var interfacesThatCanTrulyBeResolved = classesThatCanResolveDependencies.Select(c => c.GetInterfaces()[0]).Distinct().ToList();
-
-            Logger.log("INTERFACE - ENUM_TYPE - ENUM_VALUE - CLASS");
+            Logger.log("DEPENDENCY_TYPE - ENUM_TYPE - ENUM_VALUE - SERVICE_TYPE");
 
             dependencyInfoList = new List<DependencyInfo>();
-            foreach (var _class in classesThatCanResolveDependencies)
+            foreach (var _class in availableServices)
             {
                 var attribute = _class.GetCustomAttributes(false).Where(a => a is ResolvesDependencyAttribute).First() as ResolvesDependencyAttribute;
                 var _interface = _class.GetInterfaces().First(); // TODO needs to be tested thoroughly
-                var dependencyInfo = new DependencyInfo(_interface, _class, attribute.EnumType, attribute.Value);
 
-                bool configInUse = dependencyInfoList.Where(
-                    d => d.InterfaceType == _interface && d.EnumType == attribute.EnumType && d.EnumValue == attribute.Value).Count() > 0;
-
-                if (configInUse)
-                {
-                    var enumType = attribute.EnumType != null ? attribute.EnumType.Name : "null";
-                    throw new ConfigurationAlreadyInUseException(
-                        $"The following configuration tuple is already in use: {_interface.Name} - {enumType} - {attribute.Value}");
-                }
-
-                dependencyInfoList.Add(dependencyInfo);
+                Bind(_interface, _class, attribute.EnumType, attribute.Value);
             }
 
             dependencyInfoList.ForEach(
                 d => Logger.log(
-                    d.InterfaceType.Name + " - " + 
-                    (d.EnumType != null ? d.EnumType.Name : "N/A") + " - " + 
-                    d.EnumValue + " - " + 
-                    d.ClassType.Name));
+                    $"{d.DependencyType.Name} - {(d.EnumType != null ? d.EnumType.Name : "N/A")} - {d.EnumValue} - {d.ServiceType.Name}"));
             Logger.log("===================================================");
+        }
+
+        public void ResolveDependencies(object obj)
+        {
+            ResolveDependencies(obj, false);
         }
 
         public void ResolveDependencies(object obj, bool recursive)
         {
-            // search for all properties with an interface as a type
-            var propertyInfoList = obj.GetType().GetProperties().Where(
-                t => interfacesToBeResolved.Contains(t.PropertyType)).ToList();
+            var propertyInfoList = obj.GetType().GetProperties().Where(t => t.IsDefined(typeof(AutoResolvedAttribute))).ToList();
 
             foreach (var propertyInfo in propertyInfoList)
             {
-                var interfaceType = propertyInfo.PropertyType;
-                var dependencyInfo = dependencyInfoList.FirstOrDefault(d => d.InterfaceType == propertyInfo.PropertyType);
+                var dependencyType = propertyInfo.PropertyType;
+                var dependencyInfo = dependencyInfoList.FirstOrDefault(d => d.DependencyType == propertyInfo.PropertyType);
 
                 if (dependencyInfo == null)
                 {
-                    throw new ClassNotFoundException($"Could not find a class to resolve the dependency: {interfaceType.Name}");
+                    throw new ClassNotFoundException($"Could not find a service to resolve the following dependency: {dependencyType.Name}");
                 }
 
                 var enumType = dependencyInfo.EnumType;
@@ -144,7 +169,7 @@ namespace Leos.DependencyResolver
 
                 // determine which class must be used to resolve the dependency
                 var classType = dependencyInfoList.First(
-                    d => d.InterfaceType == interfaceType && d.EnumType == enumType && d.EnumValue == enumValue).ClassType;
+                    d => d.DependencyType == dependencyType && d.EnumType == enumType && d.EnumValue == enumValue).ServiceType;
 
                 // should inject the dependency only if the current property is null or has a different Type
                 if (propertyInfo.GetValue(obj) == null || propertyInfo.GetValue(obj).GetType() != classType)
@@ -158,11 +183,6 @@ namespace Leos.DependencyResolver
                     }
                 }
             }
-        }
-
-        public void ResolveDependencies(object obj)
-        {
-            ResolveDependencies(obj, false);
         }
     }
 }

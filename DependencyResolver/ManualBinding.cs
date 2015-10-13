@@ -1,4 +1,4 @@
-//--------------------------------------------------------------- @License begins
+﻿//--------------------------------------------------------------- @License begins
 // "DependencyResolver"
 // 2015 Leopoldo Lomas Flores. Torreon, Coahuila. MEXICO
 // leopoldolomas [at] gmail
@@ -25,27 +25,46 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //--------------------------------------------------------------- @License ends
 
-using System;
-
 namespace Leos.DependencyResolver
 {
-    public class DependencyInfo
+    public class Bindable
     {
-        public Type DependencyType { get; set; }
-        public Type ServiceType { get; set; }
-        public Type EnumType { get; set; }
-        public int EnumValue { get; set; }
+        public DependencyInfo DependencyInfo { get; set; }
+    }
 
-        public DependencyInfo()
+    public class Bind<T> : Bindable
+    {
+        public To<K> To<K>()
         {
+            this.DependencyInfo.DependencyType = typeof(T);
+
+            var to = new To<K>();
+            to.DependencyInfo = this.DependencyInfo;
+            to.DependencyInfo.ServiceType = typeof(K);
+
+            return to;
         }
+    }
 
-        public DependencyInfo(Type dependencyType, Type serviceType, Type enumType, int enumValue)
+    public class To<T> : Bindable
+    {
+        public When<K> When<K>()
         {
-            DependencyType = dependencyType;
-            ServiceType = serviceType;
-            EnumType = enumType;
-            EnumValue = enumValue;
+            this.DependencyInfo.EnumType = typeof(K);
+
+            var when = new When<K>();
+            when.DependencyInfo = this.DependencyInfo;
+
+            return when;
+        }
+    }
+
+    public class When<T> : Bindable
+    {
+        public void IsEqualTo(int value)
+        {
+            this.DependencyInfo.EnumType = typeof(T);
+            this.DependencyInfo.EnumValue = value;
         }
     }
 }

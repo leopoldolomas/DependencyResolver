@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoResolvedAttribute.cs" />
+    <Compile Include="ManualBinding.cs" />
     <Compile Include="ClassNotFoundException.cs" />
     <Compile Include="ConfigurationAlreadyInUseException.cs" />
     <Compile Include="DependencyInfo.cs" />
