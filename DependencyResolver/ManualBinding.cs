@@ -25,6 +25,8 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //--------------------------------------------------------------- @License ends
 
+using System;
+
 namespace Leos.DependencyResolver
 {
     public class Bindable
@@ -61,10 +63,10 @@ namespace Leos.DependencyResolver
 
     public class When<T> : Bindable
     {
-        public void IsEqualTo(int value)
+        public void IsEqualTo(T value)
         {
             this.DependencyInfo.EnumType = typeof(T);
-            this.DependencyInfo.EnumValue = value;
+            this.DependencyInfo.EnumValue = Convert.ToInt32(value);
         }
     }
 }

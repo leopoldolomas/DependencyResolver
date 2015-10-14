@@ -49,8 +49,8 @@ namespace DependencyResolverTests
         {
             var dependencyResolver = new Leos.DependencyResolver.DependencyResolver(new Logger());
 
-            dependencyResolver.Bind<IAnimal>().To<Dog>().When<AnimalType>().IsEqualTo((int)AnimalType.Dog);
-            dependencyResolver.Bind<IAnimal>().To<Cat>().When<AnimalType>().IsEqualTo((int)AnimalType.Cat);
+            dependencyResolver.Bind<IAnimal>().To<Dog>().When<AnimalType>().IsEqualTo(AnimalType.Dog);
+            dependencyResolver.Bind<IAnimal>().To<Cat>().When<AnimalType>().IsEqualTo(AnimalType.Cat);
 
             var animalCage = new AnimalCage();
 
