@@ -96,7 +96,7 @@ namespace Leos.DependencyResolver
             if (configInUse)
             {
                 throw new ConfigurationAlreadyInUseException(
-                    $"The following configuration tuple is already in use: {dependencyType.Name} - {enumType.Name} - {value}");
+                    $"The following configuration tuple is already in use: {dependencyType.Name} - {enumType.Name} - {Enum.GetName(enumType, value)}");
             }
 
             dependencyInfoList.Add(dependencyInfo);
@@ -126,7 +126,7 @@ namespace Leos.DependencyResolver
 
             dependencyInfoList.ForEach(
                 d => Logger.log(
-                    $"{d.DependencyType.Name} - {(d.EnumType != null ? d.EnumType.Name : "N/A")} - {d.EnumValue} - {d.ServiceType.Name}"));
+                    $"{d.DependencyType.Name} - {(d.EnumType != null ? d.EnumType.Name : "N/A")} - {(d.EnumType != null ? Enum.GetName(d.EnumType, d.EnumValue) : "N/A")} - {d.ServiceType.Name}"));
             Logger.log("===================================================");
         }
 
@@ -168,8 +168,16 @@ namespace Leos.DependencyResolver
                 }
 
                 // determine which class must be used to resolve the dependency
-                var classType = dependencyInfoList.First(
-                    d => d.DependencyType == dependencyType && d.EnumType == enumType && d.EnumValue == enumValue).ServiceType;
+                dependencyInfo = dependencyInfoList.FirstOrDefault(
+                    d => d.DependencyType == dependencyType && d.EnumType == enumType && d.EnumValue == enumValue);
+
+                if (dependencyInfo == null)
+                {
+                    throw new ClassNotFoundException($"Could not find a service to resolve the following " + 
+                        $"dependency: {dependencyType.Name}. Configuration Tuple: {enumType.Name} - {Enum.GetName(enumType, enumValue)}");
+                }
+
+                var classType = dependencyInfo.ServiceType;
 
                 // should inject the dependency only if the current property is null or has a different Type
                 if (propertyInfo.GetValue(obj) == null || propertyInfo.GetValue(obj).GetType() != classType)

@@ -73,7 +73,7 @@ namespace DependencyResolverTests_Tutorial07
             var animalCage = new AnimalCage();
             dependencyResolver.ResolveDependencies(animalCage);
 
-            Assert.IsNotNull(animalCage.Animal, "Dependency could not be resolved");
+            Assert.IsNotNull(animalCage.Animal, "Animal1 dependency could not be resolved");
             Assert.IsNull(animalCage.Animal2, "Animal2 should not have been resolved");
         }
     }
