@@ -70,7 +70,7 @@ namespace DependencyResolverTests
             {
                 dependencyResolver.ResolveDependencies(animalCage);
             }
-            catch (ClassNotFoundException)
+            catch (ServiceNotFoundException)
             {
                 // correct! There is no binding for IAnimal when 'AnimalType = Rabbit'
             }

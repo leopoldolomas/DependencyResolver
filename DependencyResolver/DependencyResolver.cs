@@ -146,7 +146,7 @@ namespace Leos.DependencyResolver
 
                 if (dependencyInfo == null)
                 {
-                    throw new ClassNotFoundException($"Could not find a service to resolve the following dependency: {dependencyType.Name}");
+                    throw new ServiceNotFoundException($"Could not find a service to resolve the following dependency: {dependencyType.Name}");
                 }
 
                 var enumType = dependencyInfo.EnumType;
@@ -173,7 +173,7 @@ namespace Leos.DependencyResolver
 
                 if (dependencyInfo == null)
                 {
-                    throw new ClassNotFoundException($"Could not find a service to resolve the following " + 
+                    throw new ServiceNotFoundException($"Could not find a service to resolve the following " + 
                         $"dependency: {dependencyType.Name}. Configuration Tuple: {enumType.Name} - {Enum.GetName(enumType, enumValue)}");
                 }
 

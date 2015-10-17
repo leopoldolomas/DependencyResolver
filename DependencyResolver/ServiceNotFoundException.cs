@@ -27,13 +27,13 @@
 
 namespace Leos.DependencyResolver
 {
-    public class ClassNotFoundException : System.Exception
+    public class ServiceNotFoundException : System.Exception
     {
-        public ClassNotFoundException()
+        public ServiceNotFoundException()
         {
         }
 
-        public ClassNotFoundException(string message) : base(message)
+        public ServiceNotFoundException(string message) : base(message)
         {
         }
     }
