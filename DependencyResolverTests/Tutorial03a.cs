@@ -1,4 +1,4 @@
-//--------------------------------------------------------------- @License begins
+﻿//--------------------------------------------------------------- @License begins
 // "DependencyResolver"
 // 2015 Leopoldo Lomas Flores. Torreon, Coahuila. MEXICO
 // leopoldolomas [at] gmail
@@ -30,65 +30,63 @@ using Leos.DependencyResolver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace DependencyResolverTests_Tutorial03
+namespace DependencyResolverTests_Tutorial03a
 {
     [TestClass]
-    public class Tutorial03
+    public class Tutorial03a
     {
-        public enum AnimalType { Dog = 0, Cat = 1 };
-
-        [ResolvesDependency(typeof(AnimalType), (int)AnimalType.Dog)]
-        public class Dog : IAnimal
+        interface IWeapon
         {
-            public void MakeSound()
+            int GetHitDamage();
+        }
+
+        interface IPlayer
+        {
+            IWeapon Weapon { get; set; }
+
+            void HitEnemy();
+        }
+
+        [ResolvesDependency]
+        class Sword : IWeapon
+        {
+            public int GetHitDamage()
             {
-                Console.WriteLine("woof woof!");
+                return 5;
             }
         }
 
-        [ResolvesDependency(typeof(AnimalType), (int)AnimalType.Cat)]
-        public class Cat : IAnimal
+        [ResolvesDependency]
+        class Ninja : IPlayer
         {
-            public void MakeSound()
-            {
-                Console.WriteLine("meow!");
-            }
-        }
-
-        public class AnimalCage
-        {
-            [QueryableByDependencyResolver]
-            public AnimalType AnimalType { get; set; }
-
-            public AnimalCage()
-            {
-                Animal = null;
-            }
-
             [AutoResolved]
-            public IAnimal Animal { get; set; }
+            public IWeapon Weapon { get; set; }
 
-            public void GreetAnimal()
+            public void HitEnemy()
             {
-                Animal.MakeSound();
+                Console.WriteLine($"Damage taken by the enemy using [{Weapon.GetType().Name}]: {Weapon.GetHitDamage()}");
             }
+        }
+
+        class Game
+        {
+            [AutoResolved]
+            public IPlayer Player { get; set; }
         }
 
         [TestMethod]
-        public void TestMethod3()
+        public void TestMethod3a()
         {
-            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial03", new Logger());
-            var animalCage = new AnimalCage();
+            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial03a", new Logger());
+            var game = new Game();
+            dependencyResolver.ResolveDependencies(game, recursive: true);
 
-            animalCage.AnimalType = AnimalType.Dog;
-            dependencyResolver.ResolveDependencies(animalCage);
-            Assert.IsTrue(animalCage.Animal is Dog);
-            animalCage.GreetAnimal();
+            Assert.IsTrue(game.Player is Ninja);
+            Assert.IsTrue(game.Player.Weapon is Sword);
 
-            animalCage.AnimalType = AnimalType.Cat;
-            dependencyResolver.ResolveDependencies(animalCage);
-            Assert.IsTrue(animalCage.Animal is Cat);
-            animalCage.GreetAnimal();
+            game.Player.HitEnemy();
         }
     }
 }
+            
+

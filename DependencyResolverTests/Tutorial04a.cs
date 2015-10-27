@@ -30,63 +30,51 @@ using Leos.DependencyResolver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace DependencyResolverTests_Tutorial05
+namespace DependencyResolverTests_Tutorial04a
 {
     [TestClass]
-    public class Tutorial05
+    public class Tutorial04a
     {
-        interface IWeapon
+        public class Dog : IAnimal
         {
-            int GetHitDamage();
-        }
-
-        interface IPlayer
-        {
-            IWeapon Weapon { get; set; }
-
-            void HitEnemy();
-        }
-
-        [ResolvesDependency]
-        class Sword : IWeapon
-        {
-            public int GetHitDamage()
+            public void MakeSound()
             {
-                return 5;
+                Console.WriteLine("woof woof!");
             }
         }
 
-        [ResolvesDependency]
-        class Ninja : IPlayer
+        public class AnimalCage
         {
-            [AutoResolved]
-            public IWeapon Weapon { get; set; }
-
-            public void HitEnemy()
+            public AnimalCage()
             {
-                Console.WriteLine($"Damage taken by the enemy using [{Weapon.GetType().Name}]: {Weapon.GetHitDamage()}");
+                Animal = null;
             }
-        }
 
-        class Game
-        {
+            // even though we are using manual binding this time, we still need to tell DependecyResolver
+            // what dependencies need to be resolved
             [AutoResolved]
-            public IPlayer Player { get; set; }
+            public IAnimal Animal { get; set; }
+
+            // since this property does not make use of the [AutoResolved] attribute, it should not be resolved
+            public IAnimal Animal2 { get; set; }
+
+            public void GreetAnimal()
+            {
+                Animal.MakeSound();
+                Animal2.MakeSound();
+            }
         }
 
         [TestMethod]
-        public void TestMethod5()
+        public void TestMethod4a()
         {
-            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial05", new Logger());
-            var game = new Game();
-            dependencyResolver.ResolveDependencies(game, recursive: true);
+            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver(new Logger());
+            dependencyResolver.Bind<IAnimal>().To<Dog>(); // manual binding
+            var animalCage = new AnimalCage();
+            dependencyResolver.ResolveDependencies(animalCage);
 
-            Assert.IsTrue(game.Player is Ninja);
-            Assert.IsTrue(game.Player.Weapon is Sword);
-
-            game.Player.HitEnemy();
+            Assert.IsNotNull(animalCage.Animal, "Animal1 dependency could not be resolved");
+            Assert.IsNull(animalCage.Animal2, "Animal2 should not have been resolved");
         }
     }
 }
-            
-

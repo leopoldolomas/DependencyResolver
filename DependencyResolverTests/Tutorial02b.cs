@@ -1,4 +1,4 @@
-﻿//--------------------------------------------------------------- @License begins
+//--------------------------------------------------------------- @License begins
 // "DependencyResolver"
 // 2015 Leopoldo Lomas Flores. Torreon, Coahuila. MEXICO
 // leopoldolomas [at] gmail
@@ -30,11 +30,14 @@ using Leos.DependencyResolver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace DependencyResolverTests_Tutorial07
+namespace DependencyResolverTests_Tutorial02b
 {
     [TestClass]
-    public class Tutorial07
+    public class Tutorial02b
     {
+        public enum AnimalType { Dog = 0, Cat = 1 };
+
+        [ResolvesDependency(typeof(AnimalType), (int)AnimalType.Dog)]
         public class Dog : IAnimal
         {
             public void MakeSound()
@@ -43,38 +46,49 @@ namespace DependencyResolverTests_Tutorial07
             }
         }
 
+        [ResolvesDependency(typeof(AnimalType), (int)AnimalType.Cat)]
+        public class Cat : IAnimal
+        {
+            public void MakeSound()
+            {
+                Console.WriteLine("meow!");
+            }
+        }
+
         public class AnimalCage
         {
+            [QueryableByDependencyResolver]
+            public AnimalType AnimalType { get; set; }
+
             public AnimalCage()
             {
                 Animal = null;
             }
 
-            // even though we are using manual binding this time, we still need to tell DependecyResolver
-            // what dependencies need to be resolved
             [AutoResolved]
             public IAnimal Animal { get; set; }
-
-            // since this property does not make use of the [AutoResolved] attribute, it should not be resolved
-            public IAnimal Animal2 { get; set; }
 
             public void GreetAnimal()
             {
                 Animal.MakeSound();
-                Animal2.MakeSound();
             }
         }
 
         [TestMethod]
-        public void TestMethod7()
+        public void TestMethod2b()
         {
-            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver(new Logger());
-            dependencyResolver.Bind<IAnimal>().To<Dog>(); // manual binding
+            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial02b", new Logger());
             var animalCage = new AnimalCage();
-            dependencyResolver.ResolveDependencies(animalCage);
 
-            Assert.IsNotNull(animalCage.Animal, "Animal1 dependency could not be resolved");
-            Assert.IsNull(animalCage.Animal2, "Animal2 should not have been resolved");
+            animalCage.AnimalType = AnimalType.Dog;
+            dependencyResolver.ResolveDependencies(animalCage);
+            Assert.IsTrue(animalCage.Animal is Dog);
+            animalCage.GreetAnimal();
+
+            animalCage.AnimalType = AnimalType.Cat;
+            dependencyResolver.ResolveDependencies(animalCage);
+            Assert.IsTrue(animalCage.Animal is Cat);
+            animalCage.GreetAnimal();
         }
     }
 }

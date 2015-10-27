@@ -5,7 +5,7 @@ using System;
 namespace DependencyResolverTests
 {
     [TestClass]
-    public class Tutorial08
+    public class Tutorial04b
     {
         public enum AnimalType { Dog = 0, Cat = 1, Rabbit = 2 };
 
@@ -45,7 +45,7 @@ namespace DependencyResolverTests
         }
 
         [TestMethod]
-        public void TestMethod8()
+        public void TestMethod4b()
         {
             var dependencyResolver = new Leos.DependencyResolver.DependencyResolver(new Logger());
 

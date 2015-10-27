@@ -30,10 +30,10 @@ using Leos.DependencyResolver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace DependencyResolverTests_Tutorial02
+namespace DependencyResolverTests_Tutorial01b
 {
     [TestClass]
-    public class Tutorial02
+    public class Tutorial01b
     {
         [ResolvesDependency]
         public class Dog : IAnimal
@@ -61,9 +61,9 @@ namespace DependencyResolverTests_Tutorial02
         }
 
         [TestMethod]
-        public void TestMethod2()
+        public void TestMethod1b()
         {
-            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial02", new Logger());
+            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial01b", new Logger());
             var animalCage = new AnimalCage();
             dependencyResolver.ResolveDependencies(animalCage);
 

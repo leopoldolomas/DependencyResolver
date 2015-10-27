@@ -29,10 +29,10 @@ using DependencyResolverTests;
 using Leos.DependencyResolver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DependencyResolverTests_Tutorial01
+namespace DependencyResolverTests_Tutorial01a
 {
     [TestClass]
-    public class Tutorial01
+    public class Tutorial01a
     {
         public class AnimalCage
         {
@@ -46,15 +46,15 @@ namespace DependencyResolverTests_Tutorial01
         }
 
         [TestMethod]
-        public void TestMethod1()
+        public void TestMethod1a()
         {
-            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial01", new Logger());
+            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial01a", new Logger());
             var animalCage = new AnimalCage();
 
             try
             {
                 dependencyResolver.ResolveDependencies(animalCage);
-                Assert.Fail("An exception of 'ClassNotFoundException' type must be thrown");
+                Assert.Fail("Expected exception of type 'ClassNotFoundException'");
             }
             catch(ClassNotFoundException)
             {

@@ -31,10 +31,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 
-namespace DependencyResolverTests_Tutorial04
+namespace DependencyResolverTests_Tutorial02c
 {
     [TestClass]
-    public class Tutorial04
+    public class Tutorial02c
     {
         public enum AnimalType { Dog = 0, Cat = 1, Duck = 2 };
 
@@ -86,11 +86,11 @@ namespace DependencyResolverTests_Tutorial04
         }
 
         [TestMethod]
-        public void TestMethod4()
+        public void TestMethod2c()
         {
             try
             {
-                var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial04", new Logger());
+                var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial02c", new Logger());
                 Assert.Fail("Expected exception of type 'ConfigurationAlreadyInUseException'");
             }
             catch(ConfigurationAlreadyInUseException ex)

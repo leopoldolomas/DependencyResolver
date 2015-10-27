@@ -52,15 +52,16 @@
   <ItemGroup>
     <Compile Include="IAnimal.cs" />
     <Compile Include="Logger.cs" />
-    <Compile Include="Tutorial01.cs" />
-    <Compile Include="Tutorial02.cs" />
+    <Compile Include="Tutorial01a.cs" />
+    <Compile Include="Tutorial01b.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tutorial03.cs" />
-    <Compile Include="Tutorial04.cs" />
-    <Compile Include="Tutorial05.cs" />
-    <Compile Include="Tutorial06.cs" />
-    <Compile Include="Tutorial07.cs" />
-    <Compile Include="Tutorial08.cs" />
+    <Compile Include="Tutorial02b.cs" />
+    <Compile Include="Tutorial02c.cs" />
+    <Compile Include="Tutorial03a.cs" />
+    <Compile Include="Tutorial03b.cs" />
+    <Compile Include="Tutorial04a.cs" />
+    <Compile Include="Tutorial04b.cs" />
+    <Compile Include="Tutorial02a.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DependencyResolver\DependencyResolver.csproj">

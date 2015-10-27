@@ -30,10 +30,10 @@ using Leos.DependencyResolver;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace DependencyResolverTests_Tutorial06
+namespace DependencyResolverTests_Tutorial03b
 {
     [TestClass]
-    public class Tutorial06
+    public class Tutorial03b
     {
         enum WeaponType { Sword = 0, Shuriken = 1 }
 
@@ -97,9 +97,9 @@ namespace DependencyResolverTests_Tutorial06
         }
 
         [TestMethod]
-        public void TestMethod6()
+        public void TestMethod3b()
         {
-            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial06", new Logger());
+            var dependencyResolver = new Leos.DependencyResolver.DependencyResolver("DependencyResolverTests_Tutorial03b", new Logger());
 
             var game = new Game();
             // game.Player.WeaponType = WeaponType.Shuriken; // will produce a NullReferenceException
