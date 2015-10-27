@@ -36,7 +36,7 @@ namespace Leos.DependencyResolver
     {
         public ILogger Logger { get; set; }
 
-        private List<DependencyInfo> dependencyInfoList;
+        private List<DependencyInfo> container;
 
         public DependencyResolver(ILogger logger)
         {
@@ -47,7 +47,7 @@ namespace Leos.DependencyResolver
 
             Logger = logger;
 
-            dependencyInfoList = new List<DependencyInfo>();
+            container = new List<DependencyInfo>();
         }
 
         public DependencyResolver(string _namespace)
@@ -68,8 +68,8 @@ namespace Leos.DependencyResolver
 
         public Bind<T> Bind<T>()
         {
-            dependencyInfoList.Add(new DependencyInfo());
-            var dependencyInfo = dependencyInfoList.Last();
+            container.Add(new DependencyInfo());
+            var dependencyInfo = container.Last();
             var bind = new Bind<T>();
             bind.DependencyInfo = dependencyInfo;
 
@@ -90,7 +90,7 @@ namespace Leos.DependencyResolver
 
             var dependencyInfo = new DependencyInfo(dependencyType, serviceType, enumType, value);
 
-            bool configInUse = dependencyInfoList.Where(
+            bool configInUse = container.Where(
                 d => d.DependencyType == dependencyType && d.EnumType == enumType && d.EnumValue == value).Count() > 0;
 
             if (configInUse)
@@ -99,7 +99,7 @@ namespace Leos.DependencyResolver
                     $"The following configuration tuple is already in use: {dependencyType.Name} - {enumType.Name} - {Enum.GetName(enumType, value)}");
             }
 
-            dependencyInfoList.Add(dependencyInfo);
+            container.Add(dependencyInfo);
         }
 
         private void populateDependenciesMap(string _namespace)
@@ -115,7 +115,7 @@ namespace Leos.DependencyResolver
 
             Logger.log("DEPENDENCY_TYPE - ENUM_TYPE - ENUM_VALUE - SERVICE_TYPE");
 
-            dependencyInfoList = new List<DependencyInfo>();
+            container = new List<DependencyInfo>();
             foreach (var _class in availableServices)
             {
                 var attribute = _class.GetCustomAttributes(false).Where(a => a is ResolvesDependencyAttribute).First() as ResolvesDependencyAttribute;
@@ -124,9 +124,10 @@ namespace Leos.DependencyResolver
                 Bind(_interface, _class, attribute.EnumType, attribute.Value);
             }
 
-            dependencyInfoList.ForEach(
+            container.ForEach(
                 d => Logger.log(
-                    $"{d.DependencyType.Name} - {(d.EnumType != null ? d.EnumType.Name : "N/A")} - {(d.EnumType != null ? Enum.GetName(d.EnumType, d.EnumValue) : "N/A")} - {d.ServiceType.Name}"));
+                    $"{d.DependencyType.Name} - {(d.EnumType != null ? d.EnumType.Name : "N/A")} - " +
+                    $"{(d.EnumType != null ? Enum.GetName(d.EnumType, d.EnumValue) : "N/A")} - {d.ServiceType.Name}"));
             Logger.log("===================================================");
         }
 
@@ -142,11 +143,11 @@ namespace Leos.DependencyResolver
             foreach (var propertyInfo in propertyInfoList)
             {
                 var dependencyType = propertyInfo.PropertyType;
-                var dependencyInfo = dependencyInfoList.FirstOrDefault(d => d.DependencyType == propertyInfo.PropertyType);
+                var dependencyInfo = container.FirstOrDefault(d => d.DependencyType == propertyInfo.PropertyType);
 
                 if (dependencyInfo == null)
                 {
-                    throw new ClassNotFoundException($"Could not find a service to resolve the following dependency: {dependencyType.Name}");
+                    throw new ServiceNotFoundException($"Could not find a service to resolve the following dependency: {dependencyType.Name}");
                 }
 
                 var enumType = dependencyInfo.EnumType;
@@ -168,12 +169,12 @@ namespace Leos.DependencyResolver
                 }
 
                 // determine which class must be used to resolve the dependency
-                dependencyInfo = dependencyInfoList.FirstOrDefault(
+                dependencyInfo = container.FirstOrDefault(
                     d => d.DependencyType == dependencyType && d.EnumType == enumType && d.EnumValue == enumValue);
 
                 if (dependencyInfo == null)
                 {
-                    throw new ClassNotFoundException($"Could not find a service to resolve the following " + 
+                    throw new ServiceNotFoundException($"Could not find a service to resolve the following " + 
                         $"dependency: {dependencyType.Name}. Configuration Tuple: {enumType.Name} - {Enum.GetName(enumType, enumValue)}");
                 }
 

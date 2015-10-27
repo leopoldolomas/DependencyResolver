@@ -54,11 +54,11 @@ namespace DependencyResolverTests_Tutorial01a
             try
             {
                 dependencyResolver.ResolveDependencies(animalCage);
-                Assert.Fail("Expected exception of type 'ClassNotFoundException'");
+                Assert.Fail("Expected exception of type 'ServiceNotFoundException'");
             }
-            catch(ClassNotFoundException)
+            catch(ServiceNotFoundException)
             {
-                // correct! A class could not be found since we never defined a class to resolve the 'IAnimal' dependency
+                // correct! A service could not be found since we never defined a class to resolve the 'IAnimal' dependency
             }
         }
     }
